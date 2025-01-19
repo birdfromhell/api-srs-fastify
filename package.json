@@ -11,6 +11,7 @@
     "@fastify/cors": "^8.4.1",
     "@fastify/swagger": "^8.12.1",
     "@fastify/swagger-ui": "^2.0.1",
+    "dotenv": "^16.4.7",
     "fastify": "^4.24.3",
     "mysql2": "^3.6.5"
   },
