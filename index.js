@@ -232,11 +232,11 @@ fastify.register(require('@fastify/cors'), {
 });
 
 // Routes
-fastify.get('/health', healthSchema, async () => {
+fastify.get('/api/health', healthSchema, async () => {
   return { status: 'OK' };
 });
 
-fastify.get('/db-health', dbHealthSchema, async (request, reply) => {
+fastify.get('/api/db-health', dbHealthSchema, async (request, reply) => {
   try {
     const connection = await pool.getConnection();
     await connection.ping();
@@ -247,7 +247,7 @@ fastify.get('/db-health', dbHealthSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/users', usersSchema, async (request, reply) => {
+fastify.get('/api/users', usersSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query('SELECT id, email, username FROM user');
     return rows;
@@ -256,7 +256,7 @@ fastify.get('/users', usersSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/images', imagesSchema, async (request, reply) => {
+fastify.get('/api/images', imagesSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query('SELECT * FROM image');
     return rows;
@@ -265,7 +265,7 @@ fastify.get('/images', imagesSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/faqs', faqsSchema, async (request, reply) => {
+fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query(`
       SELECT f.*, c.name as category_name 
@@ -278,7 +278,7 @@ fastify.get('/faqs', faqsSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/menu-items', menuItemsSchema, async (request, reply) => {
+fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query(`
       SELECT m.*, c.name as category_name 
@@ -291,7 +291,7 @@ fastify.get('/menu-items', menuItemsSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/reviews', reviewsSchema, async (request, reply) => {
+fastify.get('/api/reviews', reviewsSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query('SELECT * FROM review');
     return rows;
@@ -300,7 +300,7 @@ fastify.get('/reviews', reviewsSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/menu-categories', menuCategoriesSchema, async (request, reply) => {
+fastify.get('/api/menu-categories', menuCategoriesSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query('SELECT * FROM menu_category');
     return rows;
