@@ -34,6 +34,23 @@ const healthSchema = {
   }
 };
 
+const dbHealthSchema = {
+  schema: {
+    tags: ['health'],
+    summary: 'Database connection check endpoint',
+    response: {
+      200: {
+        description: 'Database connection status',
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          message: { type: 'string' }
+        }
+      }
+    }
+  }
+};
+
 const usersSchema = {
   schema: {
     tags: ['users'],
@@ -219,6 +236,17 @@ fastify.get('/health', healthSchema, async () => {
   return { status: 'OK' };
 });
 
+fastify.get('/db-health', dbHealthSchema, async (request, reply) => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.ping();
+    connection.release();
+    return { status: 'OK', message: 'Database connection is successful' };
+  } catch (error) {
+    reply.code(500).send({ status: 'ERROR', message: error.message });
+  }
+});
+
 fastify.get('/users', usersSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query('SELECT id, email, username FROM user');
@@ -252,45 +280,3 @@ fastify.get('/faqs', faqsSchema, async (request, reply) => {
 
 fastify.get('/menu-items', menuItemsSchema, async (request, reply) => {
   try {
-    const [rows] = await pool.query(`
-      SELECT m.*, c.name as category_name 
-      FROM menu_item m 
-      JOIN menu_category c ON m.category_id = c.id
-    `);
-    return rows;
-  } catch (error) {
-    reply.code(500).send({ error: error.message });
-  }
-});
-
-fastify.get('/reviews', reviewsSchema, async (request, reply) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM review');
-    return rows;
-  } catch (error) {
-    reply.code(500).send({ error: error.message });
-  }
-});
-
-fastify.get('/menu-categories', menuCategoriesSchema, async (request, reply) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM menu_category');
-    return rows;
-  } catch (error) {
-    reply.code(500).send({ error: error.message });
-  }
-});
-
-// Start the server
-const start = async () => {
-  try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' });
-    console.log(`Server is running on ${fastify.server.address().port}`);
-    console.log('Documentation available at: http://localhost:3000/documentation');
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-start();
