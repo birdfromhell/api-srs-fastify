@@ -276,6 +276,8 @@ fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
         category_faq c ON f.category_id = c.id
     `);
 
+    console.log("Fetched FAQs: ", faqs); // Debugging log
+
     const response = {
       categories: faqs.reduce((acc, faq) => {
         const category = acc.find(cat => cat.name === faq.category_name);
@@ -294,6 +296,14 @@ fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
         return acc;
       }, [])
     };
+
+    console.log("Response: ", response); // Debugging log
+
+    return response;
+  } catch (error) {
+    reply.code(500).send({ error: error.message });
+  }
+});
 
     return response;
   } catch (error) {
