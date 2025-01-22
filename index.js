@@ -203,7 +203,7 @@ fastify.register(require('@fastify/swagger'), {
       version: '1.0.0'
     },
     servers: [{
-      url: 'http://localhost:3000'
+      url: 'https://api-v2.selera-rasa-sunda.id'
     }],
     tags: [
       { name: 'health', description: 'Health check endpoints' },
@@ -218,7 +218,7 @@ fastify.register(require('@fastify/swagger'), {
 
 // Register Swagger UI
 fastify.register(require('@fastify/swagger-ui'), {
-  routePrefix: '/documentation',
+  routePrefix: '/api/docs',
   uiConfig: {
     docExpansion: 'list',
     deepLinking: false
