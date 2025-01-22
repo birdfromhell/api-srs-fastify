@@ -267,12 +267,35 @@ fastify.get('/api/images', imagesSchema, async (request, reply) => {
 
 fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
   try {
-    const [rows] = await pool.query(`
-      SELECT f.*, c.name as category_name 
-      FROM faq f 
-      JOIN category_faq c ON f.category_id = c.id
+    const [faqs] = await pool.query(`
+      SELECT 
+        f.id, f.title, f.text, f.category_id, c.name as category_name
+      FROM 
+        faq f 
+      JOIN 
+        category_faq c ON f.category_id = c.id
     `);
-    return rows;
+
+    const response = {
+      categories: faqs.reduce((acc, faq) => {
+        const category = acc.find(cat => cat.name === faq.category_name);
+        const item = {
+          title: faq.title,
+          text: faq.text
+        };
+        if (category) {
+          category.items.push(item);
+        } else {
+          acc.push({
+            name: faq.category_name,
+            items: [item]
+          });
+        }
+        return acc;
+      }, [])
+    };
+
+    return response;
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
