@@ -305,12 +305,6 @@ fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
   }
 });
 
-    return response;
-  } catch (error) {
-    reply.code(500).send({ error: error.message });
-  }
-});
-
 fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query(`
