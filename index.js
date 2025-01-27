@@ -96,29 +96,38 @@ const imagesSchema = {
 };
 
 const faqsSchema = {
-     schema: {
-       tags: ['faqs'],
-       summary: 'Get all FAQs with categories',
-       response: {
-         200: {
-           description: 'List of FAQs with categories',
-           type: 'array',
-           items: {
-             type: 'object',
-             properties: {
-               id: { type: 'integer' },
-               title: { type: 'string' },
-               text: { type: 'string' },
-               category_id: { type: 'integer' },
-               category_name: { type: 'string' },
-               created_at: { type: 'string', format: 'date-time' },
-               updated_at: { type: 'string', format: 'date-time' }
-             }
-           }
-         }
-       }
-     }
-   };
+  schema: {
+    tags: ['faqs'],
+    summary: 'Get all FAQs with categories',
+    response: {
+      200: {
+        description: 'List of FAQs with categories',
+        type: 'object',
+        properties: {
+          categories: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                items: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string' },
+                      text: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 
 const menuItemsSchema = {
   schema: {
