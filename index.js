@@ -316,12 +316,60 @@ fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
 
 fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
   try {
+    // Get categories with their menu items
     const [rows] = await pool.query(`
-      SELECT m.*, c.name as category_name 
-      FROM menu_item m 
-      JOIN menu_category c ON m.category_id = c.id
+      SELECT 
+        c.id as category_id,
+        c.name as category_name,
+        c.slug as category_slug,
+        c.description as category_description,
+        m.id,
+        m.title,
+        m.image,
+        m.price,
+        m.description as item_description,
+        m.badge,
+        m.rating
+      FROM menu_category c
+      LEFT JOIN menu_item m ON c.id = m.category_id
+      ORDER BY c.id, m.id
     `);
-    return rows;
+
+    // Transform into desired structure
+    const categories = rows.reduce((acc, row) => {
+      const categoryId = row.category_id;
+      
+      if (!acc[categoryId]) {
+        acc[categoryId] = {
+          name: row.category_name,
+          slug: row.category_slug,
+          description: row.category_description,
+          items: []
+        };
+      }
+
+      if (row.id) { // Only add if menu item exists
+        acc[categoryId].items.push({
+          image: row.image,
+          title: row.title,
+          price: row.price.toString(),
+          currency: "$",
+          rating: row.rating || 5,
+          text: row.item_description,
+          ...(row.badge && { badge: row.badge })
+        });
+      }
+
+      return acc;
+    }, {});
+
+    // Convert to array format
+    const response = {
+      categories: Object.values(categories)
+    };
+
+    return response;
+
   } catch (error) {
     reply.code(500).send({ error: error.message });
   }
