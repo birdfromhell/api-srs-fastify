@@ -4,6 +4,16 @@ const mysql = require('mysql2/promise');
 // Database connection configuration
 require('dotenv').config();
 
+const decodeHtml = (str) => {
+  return str?.replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&#039;/g, "'")
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&')
+            .replace(/\\u003C/g, '<')
+            .replace(/\\u003E/g, '>');
+};
+
 const dbConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -324,7 +334,7 @@ fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
   }
 });
 
-fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
+fastify.get('/api/menu', menuItemsSchema, async (request, reply) => {
   try {
     const [rows] = await pool.query(`
       SELECT 
@@ -365,7 +375,7 @@ fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
           currency: row.currency || '$',
           rating: row.rating || 5,
           text: row.item_description,
-          ...(row.badge && { badge: row.badge })
+          ...(row.badge && { badge: decodeHtml(row.badge) })
         });
       }
 
