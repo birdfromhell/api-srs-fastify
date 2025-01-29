@@ -8,11 +8,6 @@ function decodeHtmlEntities(text) {
   if (!text) return text;
   
   const entities = {
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&amp;': '&',
     '\\u003C': '<',
     '\\u003E': '>',
     '\\u0027': "'",
