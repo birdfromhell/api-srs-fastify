@@ -316,7 +316,6 @@ fastify.get('/api/faqs', faqsSchema, async (request, reply) => {
 
 fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
   try {
-    // Get categories with their menu items
     const [rows] = await pool.query(`
       SELECT 
         c.id as category_id,
@@ -325,17 +324,17 @@ fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
         c.description as category_description,
         m.id,
         m.title,
-        m.image,
+        m.image_url as image,
         m.price,
-        m.description as item_description,
+        m.text as item_description,
         m.badge,
-        m.rating
+        m.rating,
+        m.currency
       FROM menu_category c
       LEFT JOIN menu_item m ON c.id = m.category_id
       ORDER BY c.id, m.id
     `);
 
-    // Transform into desired structure
     const categories = rows.reduce((acc, row) => {
       const categoryId = row.category_id;
       
@@ -348,12 +347,12 @@ fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
         };
       }
 
-      if (row.id) { // Only add if menu item exists
+      if (row.id) {
         acc[categoryId].items.push({
-          image: row.image,
+          image: row.image || '/img/menu/default.jpg',
           title: row.title,
           price: row.price.toString(),
-          currency: "$",
+          currency: row.currency || '$',
           rating: row.rating || 5,
           text: row.item_description,
           ...(row.badge && { badge: row.badge })
@@ -363,12 +362,7 @@ fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
       return acc;
     }, {});
 
-    // Convert to array format
-    const response = {
-      categories: Object.values(categories)
-    };
-
-    return response;
+    return { categories: Object.values(categories) };
 
   } catch (error) {
     reply.code(500).send({ error: error.message });
