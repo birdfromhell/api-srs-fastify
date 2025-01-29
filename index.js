@@ -131,25 +131,35 @@ const faqsSchema = {
 
 const menuItemsSchema = {
   schema: {
-    tags: ['menu'],
-    summary: 'Get all menu items with categories',
     response: {
       200: {
-        description: 'List of menu items with categories',
-        type: 'array',
-        items: {
-          type: 'object',
-          properties: {
-            id: { type: 'integer' },
-            title: { type: 'string' },
-            price: { type: 'number' },
-            currency: { type: 'string' },
-            rating: { type: 'integer' },
-            text: { type: 'string' },
-            image_url: { type: 'string' },
-            badge: { type: 'string' },
-            category_id: { type: 'integer' },
-            category_name: { type: 'string' }
+        type: 'object',
+        properties: {
+          categories: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                slug: { type: 'string' },
+                description: { type: 'string' },
+                items: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      image: { type: 'string' },
+                      title: { type: 'string' },
+                      price: { type: 'string' },
+                      currency: { type: 'string' },
+                      rating: { type: 'number' },
+                      text: { type: 'string' },
+                      badge: { type: 'string', nullable: true }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -362,7 +372,8 @@ fastify.get('/api/menu-items', menuItemsSchema, async (request, reply) => {
       return acc;
     }, {});
 
-    return { categories: Object.values(categories) };
+    const response = { categories: Object.values(categories) };
+    return response;
 
   } catch (error) {
     reply.code(500).send({ error: error.message });
