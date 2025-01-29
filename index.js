@@ -4,15 +4,25 @@ const mysql = require('mysql2/promise');
 // Database connection configuration
 require('dotenv').config();
 
-const decodeHtml = (str) => {
-  return str?.replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&#039;/g, "'")
-            .replace(/&quot;/g, '"')
-            .replace(/&amp;/g, '&')
-            .replace(/\\u003C/g, '<')
-            .replace(/\\u003E/g, '>');
-};
+function decodeHtmlEntities(text) {
+  if (!text) return text;
+  
+  const entities = {
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&amp;': '&',
+    '\\u003C': '<',
+    '\\u003E': '>',
+    '\\u0027': "'",
+    '\\u0022': '"'
+  };
+
+  return text.replace(/&lt;|&gt;|&quot;|&#39;|&amp;|\\u003C|\\u003E|\\u0027|\\u0022/g, 
+    match => entities[match]
+  );
+}
 
 const dbConfig = {
     host: process.env.DB_HOST,
@@ -375,13 +385,14 @@ fastify.get('/api/menu', menuItemsSchema, async (request, reply) => {
           currency: row.currency || '$',
           rating: row.rating || 5,
           text: row.item_description,
-          ...(row.badge && { badge: decodeHtml(row.badge) })
+          ...(row.badge && { badge: decodeHtmlEntities(row.badge) })
         });
       }
 
       return acc;
     }, {});
 
+    reply.header('Content-Type', 'application/json; charset=utf-8');
     const response = { categories: Object.values(categories) };
     return response;
 
